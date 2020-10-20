@@ -1,0 +1,29 @@
+# Mac OS X
+*.DS_Store
+
+# Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/
+xcuserdata/
+DerivedData
+
+# Python
+*.pyc
+
+# AppCode
+.idea/
+
+# JavaScript
+node_modules
+
+# Fastlane
+fastlane/report.xml
+
+# Ruby Bundler
+/.bundle/
+vendor/bundle
+
