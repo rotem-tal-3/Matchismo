@@ -6,8 +6,8 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import "Deck.h"
-#import "SetCard.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
