@@ -7,8 +7,10 @@
 
 
 #import <Foundation/Foundation.h>
-#import "Card.h"
+
 NS_ASSUME_NONNULL_BEGIN
+
+@class Card;
 
 @interface Deck : NSObject
 - (void)addCard:(Card *)card;

@@ -12,20 +12,18 @@
 @end
 
 @implementation Card
-- (int)match:(NSArray<Card *> *)otherCards
-{
-    int score = 0;
-    for (Card *card in otherCards)
-    {
-        if([card.contents isEqualToString:self.contents])
-        {
+
+- (NSInteger)match:(NSArray<Card *> *)otherCards {
+    NSInteger score = 0;
+    for (Card *card in otherCards) {
+        if([card.contents isEqualToString:self.contents]) {
             score++;
         }
     }
     return score;
 }
-- (NSString *)description
-{
+
+- (NSString *)description {
     return self.contents;
 }
 @end

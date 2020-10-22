@@ -7,7 +7,6 @@
 
 #import <Foundation/Foundation.h>
 #import "Deck.h"
-#import "PlayingCard.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

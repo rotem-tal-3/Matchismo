@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import "Card.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -15,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSString *shape;
 @property (strong, nonatomic) NSString *color;
 @property (strong, nonatomic) NSString *shading;
+
 + (NSArray<NSString *> *) validShapes;
 + (NSArray<NSString *> *) validColor;
 + (NSArray<NSString *> *) validShading;

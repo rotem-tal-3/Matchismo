@@ -7,35 +7,39 @@
 
 #import "PlayingCardGameViewController.h"
 
+#import "PlayingCardDeck.h"
+#import "PlayingCard.h"
+
 @implementation PlayingCardGameViewController
 
-- (Deck *)createDeck
-{
+
+- (Deck *)createDeck {
     return [[PlayingCardDeck alloc] init];
 }
 
-- (void)setButtonBackground:(UIButton *)button forCard:(Card *) card
-{
+- (void)setButtonBackground:(UIButton *)button forCard:(Card *) card {
     [button setTitle:[self titleForCard:card] forState:UIControlStateNormal];
     [button setBackgroundImage:[self backgroundImageForCard:card] forState:UIControlStateNormal];
 }
-- (UIImage *)backgroundImageForCard:(Card *) card
-{
+
+- (UIImage *)backgroundImageForCard:(Card *) card {
     return [UIImage imageNamed:card.chosen ? @"cardfront" : @"cardback"];
 }
 
-- (NSString *)titleForCard:(Card *)card
-{
+- (NSString *)titleForCard:(Card *)card {
     return card.chosen ? card.contents : @"";
 }
 
-- (NSString *)cardsArrayToContentString: (NSArray<Card *> *) cardsArray
-{
+- (NSAttributedString *)cardsArrayToContentString: (NSArray<Card *> *) cardsArray {
     NSString *content = @"";
     for (Card *card in cardsArray)
     {
         content = [content stringByAppendingString:card.contents];
     }
-    return content;
+    return [[NSAttributedString alloc] initWithString:content];
+}
+
+- (BOOL)isSetGame {
+    return NO;
 }
 @end

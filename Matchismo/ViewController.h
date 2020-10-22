@@ -6,11 +6,13 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "CardMatchingGame.h"
-#import "Deck.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@class Deck;
 
 @interface ViewController : UIViewController
 
 - (Deck *)createDeck;
 @end
-
+NS_ASSUME_NONNULL_END;
