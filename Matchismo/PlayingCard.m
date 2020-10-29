@@ -22,6 +22,7 @@
             score = 1;
         }
     }
+    
     return score;
 }
 
@@ -29,10 +30,7 @@
 #pragma mark - Card constants
 
 + (NSArray<NSString *> *) validSuits {
-    return @[@"♥️"
-             ,@"♦️"
-             ,@"♣️"
-             ,@"♠️"];
+    return @[@"♥️" ,@"♦️" ,@"♣️" ,@"♠️"];
 }
 
 + (NSUInteger) maxRank {
@@ -59,12 +57,16 @@
 }
 
 - (void)setRank:(NSUInteger)rank {
-    if (rank < [PlayingCard maxRank]) {
+    if (rank <= [PlayingCard maxRank]) {
         _rank = rank;
     }
 }
 
+-(NSString *)description {
+  return [NSString stringWithFormat:@"%lu%@", self.rank,self.suit];
+}
+
 - (NSString *)contents {
-    return [[PlayingCard rankStrings][self.rank + 1] stringByAppendingString:self.suit];
+    return [[PlayingCard rankStrings][self.rank] stringByAppendingString:self.suit];
 }
 @end

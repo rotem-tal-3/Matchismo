@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)chooseCardAtIndex:(NSUInteger)index;
 - (void) setIsGameMode3Way:(BOOL)gameModeIs3Way;
 - (Card *)cardAtIndex:(NSUInteger)index;
+- (BOOL)addCardsToGame:(NSUInteger)numberOfCardsToAdd;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSUInteger rank;
 + (NSArray *) validSuits;
 + (NSUInteger) maxRank;
++ (NSArray<NSString *> *) rankStrings;
 @end
 
 NS_ASSUME_NONNULL_END

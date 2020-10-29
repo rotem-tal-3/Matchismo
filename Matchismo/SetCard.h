@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSArray<NSString *> *) validColor;
 + (NSArray<NSString *> *) validShading;
 + (NSArray<NSString *> *) validNumberOfShape;
++ (NSInteger)maxNumberOfShape;
 @end
 
 NS_ASSUME_NONNULL_END

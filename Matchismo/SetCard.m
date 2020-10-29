@@ -112,17 +112,26 @@ static const int kNumberOfCardsToMatch = 3;
 #pragma mark - Set Card valid properties
 
 + (NSArray<NSString *> *)validShapes {
-    return @[@"▲", @"●", @"■"];
+    return @[@"Diamond", @"Squiggle", @"Oval"];
 }
 + (NSArray<NSString *> *)validColor {
-    return @[@"#FF0000", @"#00FF00", @"#6A0DAD"];
+    return @[@"Red", @"Green", @"Purple"];
 }
 + (NSArray<NSString *> *)validShading {
-    return @[@"Solid", @"Stripped", @"Open"];
+    return @[@"Solid", @"Striped", @"Open"];
 }
 
 + (NSArray <NSString *> *)validNumberOfShape {
     return @[@"1",@"2",@"3"];
+}
+
++ (NSInteger)maxNumberOfShape {
+  NSInteger max = 0;
+  for (NSString *num in [SetCard validNumberOfShape]) {
+    NSInteger cur = [num intValue];
+    max = max > cur ? max : cur;
+  }
+  return max;
 }
 
 @end

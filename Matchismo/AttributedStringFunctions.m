@@ -6,7 +6,8 @@
 //
 
 #import "AttributedStringFunctions.h"
-#include "Card.h"
+
+#import "Card.h"
 
 @implementation AttributedStringFunctions
 + (NSAttributedString *)joinAttributedStringArrayByString:(NSString *)sep

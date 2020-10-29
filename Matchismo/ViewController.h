@@ -7,12 +7,16 @@
 
 #import <UIKit/UIKit.h>
 
+#import "CardViewDelegate.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
-@class Deck;
+@class Deck, CardMatchingGame;
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <CardViewDelegate>
 
 - (Deck *)createDeck;
+
+@property (nonatomic, readonly) CardMatchingGame *game;
 @end
 NS_ASSUME_NONNULL_END;
