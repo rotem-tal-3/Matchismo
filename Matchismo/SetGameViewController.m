@@ -27,11 +27,11 @@
 }
 
 - (NSUInteger)defaultNumberOfRows {
-  return 4;
+  return 3;
 }
 
 - (NSUInteger)defaultNumberOfCardsInRow {
-  return 3;
+  return 4;
 }
 
 - (BOOL)isSetGame {

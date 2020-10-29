@@ -28,8 +28,9 @@
 
 @implementation ViewController
 
+static const CGFloat kCardHeightToWidthProportion = 0.571428571; // = 2 / 3.5, Classic proportion
 static const NSInteger kNumberOfCardsToRedealOnRequest = 3;
-static const CGFloat kPrefferedRowColRatio = 0.75;
+static const CGFloat kPrefferedRowColRatio = 1.125;
 
 - (void)viewDidLoad {
   [super viewDidLoad];
@@ -43,12 +44,11 @@ static const CGFloat kPrefferedRowColRatio = 0.75;
   }
 }
 
-- (void)switchNumberOfCardsAndNumberOfRows {
+- (void)setGridSizeToMatchScreen {
   NSUInteger temp = self.numberOfRows;
   self.numberOfRows = self.numberOfCardsInRow;
   self.numberOfCardsInRow = temp;
 }
-
 
 - (void)startNewGame {
   self.deck = [self createDeck];
@@ -78,6 +78,11 @@ static const CGFloat kPrefferedRowColRatio = 0.75;
   }
   return chosenCards;
 }
+
+
+#pragma mark -
+#pragma mark - Grid
+#pragma mark -
 
 - (void)fitCardGridSize:(NSInteger)numberOfViewsToBeAdded {
   NSUInteger newCardCount = [[self.cardLayoutView subviews] count] + numberOfViewsToBeAdded;
@@ -181,26 +186,24 @@ static const CGFloat kPrefferedRowColRatio = 0.75;
 }
 
 - (void)animateCardViewsToTheirPosition {
-  __weak ViewController *weakSelf = self;
   for (NSUInteger i = 0; i < [[self.cardLayoutView subviews] count]; i++) {
     CGRect frame;
     frame.origin = [self createCardPosition:i];
     frame.size = [self createCardSize];
+    UIView *view = [self.cardLayoutView subviews][i];
     [UIView animateWithDuration:1.0 animations:^{
-      UIView *view = [weakSelf.cardLayoutView subviews][i];
       view.frame = frame;
     }];
   }
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-  [self switchNumberOfCardsAndNumberOfRows];
   [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context){}
                                completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+    [self setGridSizeToMatchScreen];
     [self animateCardViewsToTheirPosition];
   }];
   
-  [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
 
@@ -227,8 +230,8 @@ static const CGFloat kPrefferedRowColRatio = 0.75;
 
 - (CGSize)createCardSize {
   CGSize frameSize = {
-    [self cardWidthInsideLayout:self.cardLayoutView.frame.size.width],
-    [self cardHeightInsideLayout:self.cardLayoutView.frame.size.height]
+    [self cardWidthInsideLayout:self.cardLayoutView.frame.size],
+    [self cardHeightInsideLayout:self.cardLayoutView.frame.size]
   };
   return frameSize;
 }
@@ -242,8 +245,8 @@ static const CGFloat kPrefferedRowColRatio = 0.75;
   CGFloat heightOfCardLayout = self.cardLayoutView.frame.size.height;
   NSUInteger row = cardIndex / self.numberOfCardsInRow;
   NSUInteger col = cardIndex % self.numberOfCardsInRow;
-  CGFloat cardWidth = [self cardWidthInsideLayout:widthOfCardLayout];
-  CGFloat cardHeight = [self cardHeightInsideLayout:heightOfCardLayout];
+  CGFloat cardWidth = [self cardWidthInsideLayout:self.cardLayoutView.frame.size];
+  CGFloat cardHeight = [self cardHeightInsideLayout:self.cardLayoutView.frame.size];
   CGFloat posX = col * (cardWidth + [self gapSizeWithinBound:widthOfCardLayout
                                             forNumberOfCards:self.numberOfCardsInRow]);
   CGFloat posY = row * (cardHeight + [self gapSizeWithinBound:heightOfCardLayout
@@ -251,12 +254,12 @@ static const CGFloat kPrefferedRowColRatio = 0.75;
   return CGPointMake(posX, posY);
 }
 
-- (CGFloat)cardWidthInsideLayout:(CGFloat)layoutWidth {
-  return layoutWidth / (self.numberOfCardsInRow + 1);
+- (CGFloat)cardWidthInsideLayout:(CGSize)layoutSize {
+  return [self cardHeightInsideLayout:layoutSize] * kCardHeightToWidthProportion;
 }
 
-- (CGFloat)cardHeightInsideLayout:(CGFloat)layoutHeight {
-  return layoutHeight / (self.numberOfRows + 1);
+- (CGFloat)cardHeightInsideLayout:(CGSize)layoutSize {
+  return layoutSize.height / (self.numberOfRows + 1);
 }
 
 - (CGFloat)gapSizeWithinBound:(CGFloat)bound forNumberOfCards:(NSInteger)numberOfCards {
