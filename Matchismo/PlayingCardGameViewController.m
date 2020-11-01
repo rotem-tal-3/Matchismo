@@ -30,13 +30,6 @@
   return NO;
 }
 
-- (NSUInteger)defaultNumberOfRows {
-  return 5;
-}
-
-- (NSUInteger)defaultNumberOfCardsInRow {
-  return 4;
-}
 
 #pragma mark -
 #pragma mark - CardView creation
@@ -71,5 +64,9 @@
   } completion:^(BOOL finished) {}];
 }
 
+
+- (NSUInteger)defaultNumberOfCards {
+  return 20;
+}
 
 @end

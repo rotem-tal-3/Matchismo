@@ -26,14 +26,6 @@
   return [[SetDeck alloc] init];
 }
 
-- (NSUInteger)defaultNumberOfRows {
-  return 3;
-}
-
-- (NSUInteger)defaultNumberOfCardsInRow {
-  return 4;
-}
-
 - (BOOL)isSetGame {
   return YES;
 }
@@ -54,6 +46,10 @@
                                    initWithTarget:scv action:@selector((onCardTap:))];
   [scv addGestureRecognizer:uitgr];
   return scv;
+}
+
+- (NSUInteger)defaultNumberOfCards {
+  return 12;
 }
 
 

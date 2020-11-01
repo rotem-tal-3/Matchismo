@@ -54,6 +54,11 @@ static const CGFloat kPipFontScaleFactor = 0.008;
 }
 
 
+- (NSUInteger)defaultNumberOfCards {
+  return 12;
+}
+
+
 #pragma mark -
 #pragma mark - Initialization
 #pragma mark -

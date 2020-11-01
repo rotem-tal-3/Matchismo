@@ -19,8 +19,6 @@
 @property (nonatomic, readwrite) CardMatchingGame *game;
 @property (strong, nonatomic) Deck* deck;
 @property (weak, nonatomic) IBOutlet UIButton *resetButton;
-@property (nonatomic) NSUInteger numberOfCardsInRow;
-@property (nonatomic) NSUInteger numberOfRows;
 @property (nonatomic) NSUInteger numberOfCardsPlayed;
 
 @end
@@ -28,9 +26,9 @@
 
 @implementation ViewController
 
-static const CGFloat kCardHeightToWidthProportion = 0.571428571; // = 2 / 3.5, Classic proportion
+static const CGFloat kCardWidthToHeightProportion = 0.88;
 static const NSInteger kNumberOfCardsToRedealOnRequest = 3;
-static const CGFloat kPrefferedRowColRatio = 1.125;
+static const CGFloat kCardToGapProportion = 0.9;
 
 - (void)viewDidLoad {
   [super viewDidLoad];
@@ -44,16 +42,8 @@ static const CGFloat kPrefferedRowColRatio = 1.125;
   }
 }
 
-- (void)setGridSizeToMatchScreen {
-  NSUInteger temp = self.numberOfRows;
-  self.numberOfRows = self.numberOfCardsInRow;
-  self.numberOfCardsInRow = temp;
-}
-
 - (void)startNewGame {
   self.deck = [self createDeck];
-  self.numberOfRows = [self defaultNumberOfRows];
-  self.numberOfCardsInRow = [self defaultNumberOfCardsInRow];
   self.game = [[CardMatchingGame alloc] initWithCardCount:[self numberOfCards] usingDeck:self.deck];
   [self.game setIsGameMode3Way:[self isSetGame]];
   self.numberOfCardsPlayed = 0;
@@ -64,8 +54,7 @@ static const CGFloat kPrefferedRowColRatio = 1.125;
 
 - (NSUInteger)numberOfCards {
   NSUInteger viewCount = [[self.cardLayoutView subviews] count];
-  NSUInteger defaultNumber = self.numberOfCardsInRow * self.numberOfRows;
-  return viewCount ? viewCount : defaultNumber;
+  return viewCount ? viewCount : [self defaultNumberOfCards];
 }
 
 - (NSMutableArray *)getChosenCards {
@@ -84,22 +73,6 @@ static const CGFloat kPrefferedRowColRatio = 1.125;
 #pragma mark - Grid
 #pragma mark -
 
-- (void)fitCardGridSize:(NSInteger)numberOfViewsToBeAdded {
-  NSUInteger newCardCount = [[self.cardLayoutView subviews] count] + numberOfViewsToBeAdded;
-  NSUInteger numberOfRows = ceil((CGFloat)newCardCount / self.numberOfCardsInRow);
-  self.numberOfRows = MAX(numberOfRows, [self defaultNumberOfRows]);
-  if ([self needToAdjustGrid]) {
-    self.numberOfRows--;
-    self.numberOfCardsInRow++;
-  }
-  
-}
-
-- (BOOL)needToAdjustGrid {
-  CGFloat curRatio = self.numberOfCardsInRow / ((CGFloat)self.numberOfRows);
-  CGFloat proposedRatio = (self.numberOfCardsInRow + 1) / ((CGFloat)self.numberOfRows - 1);
-  return fabs(curRatio - kPrefferedRowColRatio) > fabs(proposedRatio - kPrefferedRowColRatio);
-}
 
 #pragma mark -
 #pragma mark - UI responders
@@ -116,7 +89,6 @@ static const CGFloat kPrefferedRowColRatio = 1.125;
 }
 
 - (IBAction)addCardsButtonPressed:(UIButton *)sender {
-  [self fitCardGridSize:kNumberOfCardsToRedealOnRequest];
   [self.game addCardsToGame:kNumberOfCardsToRedealOnRequest];
   [self createCardViews:kNumberOfCardsToRedealOnRequest];
   [self animateCardViewsToTheirPosition];
@@ -179,28 +151,29 @@ static const CGFloat kPrefferedRowColRatio = 1.125;
     if (finished) {
       view.hidden = YES;
       [view removeFromSuperview];
-      [self fitCardGridSize:0];
       [self animateCardViewsToTheirPosition];
     }
   }];
 }
 
 - (void)animateCardViewsToTheirPosition {
+  CGSize cardSize = [self createCardSize];
+  CGPoint position = CGPointZero;
+  CGRect frame;
+  frame.origin = position;
+  frame.size = cardSize;
   for (NSUInteger i = 0; i < [[self.cardLayoutView subviews] count]; i++) {
-    CGRect frame;
-    frame.origin = [self createCardPosition:i];
-    frame.size = [self createCardSize];
     UIView *view = [self.cardLayoutView subviews][i];
     [UIView animateWithDuration:1.0 animations:^{
       view.frame = frame;
     }];
+    frame = [self updateCardPosition:frame];
   }
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
   [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context){}
                                completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-    [self setGridSizeToMatchScreen];
     [self animateCardViewsToTheirPosition];
   }];
   
@@ -229,46 +202,53 @@ static const CGFloat kPrefferedRowColRatio = 1.125;
 }
 
 - (CGSize)createCardSize {
-  CGSize frameSize = {
-    [self cardWidthInsideLayout:self.cardLayoutView.frame.size],
-    [self cardHeightInsideLayout:self.cardLayoutView.frame.size]
-  };
+  CGFloat width = [self cardWidthInsideLayout];
+  CGSize frameSize = {width, [self cardHeightGivenCardWidth:width]};
   return frameSize;
 }
 
 #pragma mark -
-#pragma mark - Create card position
+#pragma mark - Card position
 #pragma mark -
 
-- (CGPoint)createCardPosition:(NSUInteger)cardIndex {
-  CGFloat widthOfCardLayout = self.cardLayoutView.frame.size.width;
-  CGFloat heightOfCardLayout = self.cardLayoutView.frame.size.height;
-  NSUInteger row = cardIndex / self.numberOfCardsInRow;
-  NSUInteger col = cardIndex % self.numberOfCardsInRow;
-  CGFloat cardWidth = [self cardWidthInsideLayout:self.cardLayoutView.frame.size];
-  CGFloat cardHeight = [self cardHeightInsideLayout:self.cardLayoutView.frame.size];
-  CGFloat posX = col * (cardWidth + [self gapSizeWithinBound:widthOfCardLayout
-                                            forNumberOfCards:self.numberOfCardsInRow]);
-  CGFloat posY = row * (cardHeight + [self gapSizeWithinBound:heightOfCardLayout
-                                             forNumberOfCards:self.numberOfRows]);
-  return CGPointMake(posX, posY);
+- (CGRect)updateCardPosition:(CGRect)previousPositionFrame {
+  CGFloat cardWidth = previousPositionFrame.size.width;
+  CGFloat gapWidth = [self gapGivenCardSize:cardWidth];
+  previousPositionFrame.origin.x += cardWidth + gapWidth;
+  if (previousPositionFrame.origin.x + cardWidth > self.cardLayoutView.frame.size.width) {
+    previousPositionFrame.origin.x = 0;
+    previousPositionFrame.origin.y += previousPositionFrame.size.height + [self gapGivenCardSize:previousPositionFrame.size.height];
+  }
+  return previousPositionFrame;
 }
 
-- (CGFloat)cardWidthInsideLayout:(CGSize)layoutSize {
-  return [self cardHeightInsideLayout:layoutSize] * kCardHeightToWidthProportion;
+- (NSUInteger)cardCountWithGaps {
+  return [[self.cardLayoutView subviews] count] + 1;
 }
 
-- (CGFloat)cardHeightInsideLayout:(CGSize)layoutSize {
-  return layoutSize.height / (self.numberOfRows + 1);
+- (CGFloat)cardWidthInsideLayout {
+  return kCardToGapProportion * [self cardAndGapWidthInsideLayout];
 }
 
-- (CGFloat)gapSizeWithinBound:(CGFloat)bound forNumberOfCards:(NSInteger)numberOfCards {
-  NSInteger numberOfGaps = [self numberOfGapsFor:numberOfCards];
-  return bound / ((numberOfCards + 1) * numberOfGaps) ;
+- (CGFloat)gapGivenCardSize:(CGFloat)size {
+  return (size / kCardToGapProportion) - size;
 }
 
-- (NSInteger)numberOfGapsFor:(NSInteger)numberOfCards {
-  return numberOfCards - 1;
+-(CGFloat)cardAndGapWidthInsideLayout {
+  CGFloat layoutArea = self.cardLayoutView.frame.size.width * self.cardLayoutView.frame.size.height;
+  return sqrtl(kCardWidthToHeightProportion * layoutArea / [self cardCountWithGaps]);
+}
+
+- (CGFloat)cardHeightGivenCardWidth:(CGFloat)width {
+  return width * kCardWidthToHeightProportion;
+}
+
+- (NSUInteger)numberOfCardsInRow:(CGFloat)cardWidth {
+  return ceil(kCardToGapProportion * self.cardLayoutView.frame.size.width / cardWidth);
+}
+
+- (NSUInteger)numberOfRows:(CGFloat)cardHeight {
+  return ceil(kCardToGapProportion * self.cardLayoutView.frame.size.height / cardHeight);
 }
 
 #pragma mark - Functions to be overriden by subclass
@@ -294,15 +274,11 @@ static const CGFloat kPrefferedRowColRatio = 1.125;
   return NO;
 }
 
-- (NSUInteger)defaultNumberOfRows {
-  return 0;
-}
-
-- (NSUInteger)defaultNumberOfCardsInRow {
-  return 0;
-}
-
 - (void)handleChosen:(Card *)card withView:(UIView<CardViewProtocol> *)view {
+}
+
+- (NSUInteger)defaultNumberOfCards {
+  return 0;
 }
 
 @end
